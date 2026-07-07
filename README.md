@@ -207,11 +207,7 @@ Use commas to separate values. Jobs that don't match your seniority + function c
 
 Fill in your `Config - Companies` tab with the companies you want to monitor daily. Aim for 20–30 companies to start — enough for daily signal without noise.
 
-**You only need to fill in two columns: `Company Name` and `Active`.** Set `Active` to `Y` for each company you want to monitor.
-
-**If you're using the Claude-guided setup:** just give Claude your list of company names and it will look up the ATS type and handle for each one and tell you exactly what to enter. This is much faster and more accurate than looking them up yourself.
-
-**If you're doing it manually:** run the **Detect Company ATS** workflow (Actions tab → Detect Company ATS → Run workflow) to auto-detect handles where possible. For any it can't find, see [Section A](#section-a-finding-a-companys-ats-handle) below.
+Add your company names to the `Config - Companies` tab, then give Claude your list and it will look up the ATS type and handle for each one and tell you exactly what to enter. Some companies use job board systems that aren't publicly accessible — Claude will flag those and suggest alternatives.
 
 **Think in tiers.** Not all companies on your list are equal, and that's fine — the system monitors them all the same way. But building your list with tiers in mind helps you prioritize when results come in.
 
@@ -226,7 +222,6 @@ Fill in your `Config - Companies` tab with the companies you want to monitor dai
 - Tier B: companies in your target industry at the right stage (Series B–D, growth-stage, pre-IPO); companies where you have second-degree connections; competitors to Tier A companies
 - Tier C: companies you keep seeing in job alerts; adjacent industries you're open to; companies that are early but on a trajectory you find interesting
 
-**Finding a company's ATS handle:** if using Claude, just ask it. If doing it manually, see [Section A](#section-a-finding-a-companys-ats-handle) below.
 
 **Companies not on Ashby, Greenhouse, Lever, or Gem:** Workday, iCIMS, Taleo, Comeet, and SAP SuccessFactors don't expose public APIs. You can't monitor them directly with this system. For those companies, check their job boards manually or set a Google Alert.
 
