@@ -169,48 +169,49 @@ def fetch_workday(handle: str, company_name: str, seniority_keywords: list = Non
     return jobs
 
 
-def fetch_broad_search(query: str, adzuna_app_id: str, adzuna_app_key: str) -> list:
-    """Search US jobs via Adzuna API (developer.adzuna.com)."""
+def fetch_broad_search(query: str, rapidapi_key: str) -> list:
+    """Search across LinkedIn/Indeed/Glassdoor via JSearch (RapidAPI)."""
+    try:
+        resp = requests.get(
+            'https://jsearch.p.rapidapi.com/search',
+            headers={
+                'x-rapidapi-key':  rapidapi_key,
+                'x-rapidapi-host': 'jsearch.p.rapidapi.com',
+            },
+            params={
+                'query':       query,
+                'page':        '1',
+                'num_pages':   '1',
+                'country':     'us',
+                'date_posted': 'month',
+            },
+            timeout=30,
+        )
+        if not resp.ok:
+            print(f'    JSearch HTTP {resp.status_code} for "{query}": {resp.text[:200]}')
+            return []
+        data = resp.json()
+        print(f'    JSearch: {len(data.get("data", []))} results')
+    except Exception as e:
+        print(f'    JSearch exception for "{query}": {type(e).__name__}: {str(e)[:200]}')
+        return []
+
     jobs = []
-    for page in range(1, 2):
-        try:
-            resp = requests.get(
-                f'https://api.adzuna.com/v1/api/jobs/us/search/{page}',
-                params={
-                    'app_id':           adzuna_app_id,
-                    'app_key':          adzuna_app_key,
-                    'what':             query,
-                    'results_per_page': 20,
-                    'max_days_old':     30,
-                },
-                headers={'Accept': 'application/json'},
-                timeout=30,
-            )
-            if not resp.ok:
-                print(f'    Adzuna HTTP {resp.status_code} for "{query}" page {page}: {resp.text[:200]}')
-                break
-            data = resp.json()
-            print(f'    Adzuna response: HTTP {resp.status_code}, count={data.get("count", "?")},'
-                  f' results={len(data.get("results", []))}')
-        except Exception as e:
-            print(f'    Adzuna exception for "{query}" page {page}: {type(e).__name__}: {str(e)[:200]}')
-            break
+    for item in data.get('data', []):
+        city      = item.get('job_city') or ''
+        state     = item.get('job_state') or ''
+        loc_parts = [p for p in [city, state] if p]
+        location  = ', '.join(loc_parts) if loc_parts else ('Remote' if item.get('job_is_remote') else '')
+        posted    = (item.get('job_posted_at_datetime_utc') or '')[:10]
 
-        for item in data.get('results', []):
-            company  = (item.get('company') or {}).get('display_name', '')
-            location = (item.get('location') or {}).get('display_name', '')
-            posted   = (item.get('created') or '')[:10]
-
-            jobs.append({
-                'job_title':    item.get('title', ''),
-                'company':      company,
-                'job_url':      item.get('redirect_url', ''),
-                'description':  (item.get('description') or '')[:8000],
-                'date_posted':  posted,
-                'location_raw': location,
-            })
-
-        time.sleep(0.5)
+        jobs.append({
+            'job_title':    item.get('job_title', ''),
+            'company':      item.get('employer_name', ''),
+            'job_url':      item.get('job_apply_link') or item.get('job_url', ''),
+            'description':  (item.get('job_description') or '')[:8000],
+            'date_posted':  posted,
+            'location_raw': location,
+        })
 
     return jobs
 
