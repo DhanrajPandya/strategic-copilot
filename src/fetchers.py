@@ -173,7 +173,7 @@ def fetch_broad_search(query: str, rapidapi_key: str) -> list:
     """Search across LinkedIn/Indeed/Glassdoor via JSearch (RapidAPI)."""
     try:
         resp = requests.get(
-            'https://jsearch.p.rapidapi.com/search',
+            'https://jsearch.p.rapidapi.com/search-v2',
             headers={
                 'x-rapidapi-key':  rapidapi_key,
                 'x-rapidapi-host': 'jsearch.p.rapidapi.com',
