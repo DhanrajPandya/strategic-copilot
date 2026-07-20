@@ -18,7 +18,7 @@ SEARCH_TAB     = 'Config - Search Terms'
 RESULTS_HEADERS = [
     'Job Title', 'Company', 'Job URL', 'Source Lane', 'Date Posted', 'Days Since Posted',
     'Fit Score', 'Abstract Fit Flag', 'Scope Flag', 'Comp Signal',
-    'Corporate Bottleneck', 'Strategic Thesis', 'Status',
+    'Corporate Bottleneck', 'Strategic Thesis', 'Network Bridge', 'Status',
 ]
 
 _PROFILE_PLACEHOLDER = [
