@@ -5,7 +5,31 @@ import re
 import anthropic
 from sheets import get_client, ensure_setup, load_profile
 
-PROMPT = """You are helping a job seeker set up automated job board search queries.
+PROMPT_WITH_JOBS = """You are helping a job seeker set up automated job board search queries.
+
+Based on their scoring profile and sample job descriptions below, generate 8-10 search query strings optimized for job board search engines (LinkedIn, Indeed, Glassdoor).
+
+PROFILE:
+Background: {background}
+Seniority Level: {seniority_keywords}
+Target Functions: {target_functions}
+Keywords: {keywords}
+
+SAMPLE JOB DESCRIPTIONS (use these to understand how target roles are actually titled and what functions they cover):
+{jobs}
+
+Requirements:
+- Each query combines a seniority level + a specific role type or function
+- Write them as natural job title searches — the way a recruiter would title the role
+- Draw on the actual language used in the sample job descriptions above
+- Vary the combinations — don't repeat the same words in every query
+- Specific enough to filter noise, broad enough to surface relevant roles
+- Do NOT include location — the system handles that separately
+
+Output ONLY a valid JSON array of strings, no explanation, no markdown:
+["query 1", "query 2", ...]"""
+
+PROMPT_PROFILE_ONLY = """You are helping a job seeker set up automated job board search queries.
 
 Based on their scoring profile below, generate 8-10 search query strings optimized for job board search engines (LinkedIn, Indeed, Glassdoor).
 
@@ -47,20 +71,38 @@ def main():
     print('Reading profile from Google Sheets...')
     print(f'  Background: {profile.get("background", "")[:80]}...')
 
+    # Use sample job descriptions if still present (richer signal than profile alone)
+    jobs_text = None
+    jobs_path = 'setup/sample_jobs.txt'
+    if os.path.exists(jobs_path):
+        with open(jobs_path, encoding='utf-8') as f:
+            jobs_text = f.read().strip()
+        print(f'  Found {jobs_path} — using job descriptions for richer query generation')
+    else:
+        print(f'  No {jobs_path} found — generating from profile only')
+
+    if jobs_text:
+        prompt = PROMPT_WITH_JOBS.format(
+            background=profile.get('background', ''),
+            seniority_keywords=profile.get('seniority_keywords', ''),
+            target_functions=profile.get('target_functions', ''),
+            keywords=profile.get('keywords', ''),
+            jobs=jobs_text[:20000],
+        )
+    else:
+        prompt = PROMPT_PROFILE_ONLY.format(
+            background=profile.get('background', ''),
+            seniority_keywords=profile.get('seniority_keywords', ''),
+            target_functions=profile.get('target_functions', ''),
+            keywords=profile.get('keywords', ''),
+        )
+
     print('\nGenerating search terms with Claude...')
     client = anthropic.Anthropic(api_key=api_key)
     response = client.messages.create(
         model='claude-sonnet-4-6',
         max_tokens=1024,
-        messages=[{
-            'role': 'user',
-            'content': PROMPT.format(
-                background=profile.get('background', ''),
-                seniority_keywords=profile.get('seniority_keywords', ''),
-                target_functions=profile.get('target_functions', ''),
-                keywords=profile.get('keywords', ''),
-            ),
-        }],
+        messages=[{'role': 'user', 'content': prompt}],
     )
 
     text = response.content[0].text

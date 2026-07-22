@@ -184,7 +184,9 @@ The workflow reads your files, calls Claude, and writes your profile directly to
 
 Open your Google Sheet and go to the `Config - Profile` tab. Review what was generated — the Background, Anchors, Keywords, and Negative Signals are filled in automatically. The **Comp Target** row is optional: if you fill it in (e.g. `$300K–$400K OTE`), each job will be flagged as `IN_RANGE`, `BELOW_RANGE`, or `NOT_LISTED`. Leave it blank to skip compensation filtering entirely.
 
-Then delete `setup/resume.txt` and `setup/sample_jobs.txt` from your repo — navigate to each file on GitHub, click the trash icon, and commit the deletion.
+Then delete `setup/resume.txt` from your repo — navigate to the file on GitHub, click the trash icon, and commit the deletion. Your resume is personal; don't leave it in a repo.
+
+`setup/sample_jobs.txt` is optional to keep. If you leave it in place, the Generate Search Terms workflow (Step 7) will use your sample job descriptions alongside your profile to produce more targeted search queries — it learns from the actual language used in roles you found relevant. If you delete it, the workflow falls back to generating queries from your profile alone, which still works well.
 
 **Score threshold:** defaults to 6. A score of 6 means "interesting but not obvious." Raise it to 7 if you're getting too much noise; lower it to 5 if you're missing roles you'd want to see.
 
@@ -237,7 +239,7 @@ You define the search terms as query strings in the `Config - Search Terms` tab.
 
 **Generate your search terms automatically (recommended)**
 
-The easiest way: run the **Generate Search Terms** workflow. It reads your scoring profile — which was already built from your resume in Step 5 — and uses Claude to generate 8–10 optimized search queries tailored to your background, level, and target functions.
+The easiest way: run the **Generate Search Terms** workflow. It reads your scoring profile (built from your resume in Step 5) and, if you kept `setup/sample_jobs.txt`, your sample job descriptions — and uses Claude to generate 8–10 optimized search queries tailored to your background, level, and target functions. The sample job descriptions give it richer signal about how the roles you're targeting are actually titled and described.
 
 1. Go to **Actions** → **Generate Search Terms** → **Run workflow → Run workflow**
 2. Open `Config - Search Terms` in your sheet when it finishes
